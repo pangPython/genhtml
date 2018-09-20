@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.pangpython.sohu.dao.NewsInfoDao">
+
+    <resultMap id="BaseResultMap" type="cn.pangpython.sohu.model.po.NewsInfo">
+		<id column="Id" property="id" jdbcType="BIGINT"/>
+		<result column="title" property="title" jdbcType="VARCHAR"/>
+		<result column="url" property="url" jdbcType="VARCHAR"/>
+		<result column="cate" property="cate" jdbcType="VARCHAR"/>
+		<result column="date" property="date" jdbcType="VARCHAR"/>
+		<result column="srcFrom" property="srcfrom" jdbcType="VARCHAR"/>
+		<result column="content" property="content" jdbcType="LONGVARCHAR"/>
+		<result column="editor" property="editor" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <insert id="insert">
+        INSERT INTO news_info(Id,title,url,cate,date,srcFrom,content,editor)
+        VALUES(null,#{title},#{url},#{cate},#{date},#{srcfrom},#{content},#{editor})
+    </insert>
+    <insert id="batchInsert" parameterType="list">
+        INSERT INTO news_info(Id,title,url,cate,date,srcFrom,content,editor)
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (null,#{item.title},#{item.url},#{item.cate},#{item.date},#{item.srcfrom},#{item.content},#{item.editor})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        Id=VALUES(Id),title=VALUES(title),url=VALUES(url),cate=VALUES(cate),date=VALUES(date),srcFrom=VALUES(srcFrom),content=VALUES(content),editor=VALUES(editor)
+    </insert>
+    <update id="update">
+        UPDATE news_info
+        <trim prefix="SET" suffixOverrides=",">
+			<if test="title!=null">
+                title=#{title},
+            </if>
+			<if test="url!=null">
+                url=#{url},
+            </if>
+			<if test="cate!=null">
+                cate=#{cate},
+            </if>
+			<if test="date!=null">
+                date=#{date},
+            </if>
+			<if test="srcfrom!=null">
+                srcFrom=#{srcfrom},
+            </if>
+			<if test="content!=null">
+                content=#{content},
+            </if>
+			<if test="editor!=null">
+                editor=#{editor},
+            </if>
+        </trim>
+        WHERE Id=#{id}
+    </update>
+
+    <sql id="SELECT_FIELD">
+        Id,title,url,cate,date,srcFrom,content,editor
+    </sql>
+
+    <sql id="QUERY_SQL">
+        from news_info
+        <where>
+			<if test="id!=null and id!=-1">
+               AND Id=#{id}
+            </if>
+			<if test="title!=null">
+               AND title=#{title}
+            </if>
+			<if test="url!=null">
+               AND url=#{url}
+            </if>
+			<if test="cate!=null">
+               AND cate=#{cate}
+            </if>
+			<if test="date!=null">
+               AND date=#{date}
+            </if>
+			<if test="srcfrom!=null">
+               AND srcFrom=#{srcfrom}
+            </if>
+			<if test="content!=null">
+               AND content=#{content}
+            </if>
+			<if test="editor!=null">
+               AND editor=#{editor}
+            </if>
+
+        </where>
+    </sql>
+
+    <select id="query" resultMap="BaseResultMap">
+        select <include refid="SELECT_FIELD"/>
+        <include refid="QUERY_SQL"/>
+        <if test="limit!=null and limit!=-1 ">
+            <if test="offset!=null and offset!=-1">
+                limit #{offset},#{limit}
+            </if>
+        </if>
+    </select>
+
+    <select id="count" resultType="long">
+        select count(*)
+        <include refid="QUERY_SQL"/>
+    </select>
+
+</mapper>
